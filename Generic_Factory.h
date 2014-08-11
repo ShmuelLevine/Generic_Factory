@@ -67,7 +67,7 @@ namespace fx { namespace core {
         };
         
         
-        template <class AbstractType, template <typename> class Pointer_Type, class...ConstructorArgs>
+        template <class AbstractType, template <typename> class Pointer_Type<AbstractType>, class...ConstructorArgs>
 //        template <class AbstractType, class...ConstructorArgs>
     class Generic_Factory{
 
@@ -96,7 +96,7 @@ namespace fx { namespace core {
   
         };
 
-        template <class ConcreteType, class AbstractType, template <typename> class Pointer_Type, class...ConstructorArgs>
+        template <class ConcreteType, class AbstractType, template <typename> class Pointer_Type<AbstractType>, class...ConstructorArgs>
         struct Factory_Registrar : private fx::core::Generic_Factory<AbstractType, Pointer_Type, ConstructorArgs...>{
             using Factory = fx::core::Generic_Factory<AbstractType, Pointer_Type, ConstructorArgs...>;
             using Constructor_t = typename Factory::Constructor_t;
