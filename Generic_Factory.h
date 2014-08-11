@@ -72,7 +72,7 @@ namespace fx { namespace core {
     class Generic_Factory{
 
         public:
-            static Pointer_Type<AbstractType>::Type Construct(std::string key, ConstructorArgs... arguments){
+            static typename Pointer_Type<AbstractType>::Type Construct(std::string key, ConstructorArgs... arguments){
                 auto it = Get_Registry()->find(key);
                 if (it == Get_Registry()->cend())
                     return nullptr;
@@ -81,7 +81,7 @@ namespace fx { namespace core {
                 return constructor(std::forward<ConstructorArgs>(arguments)...);
             }
 
-            using Constructor_t = std::function<Pointer_Type<AbstractType>::Type(ConstructorArgs...)>;
+            using Constructor_t = std::function<typename Pointer_Type<AbstractType>::Type(ConstructorArgs...)>;
             using Registry_t = std::map< std::string, Constructor_t>;
             
             Generic_Factory(Generic_Factory const&) = delete;
