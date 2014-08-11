@@ -111,14 +111,14 @@ namespace fx { namespace core {
             unsigned int NO_OP(){ return 0; }
         };
 
-        template <class Return_t, template <class> class Pointer_Type, class...Args>
+        template <class Return_t, template <typename> class Pointer_Type, class...Args>
         typename Generic_Factory<Return_t, Pointer_Type, Args...>::Registry_t* Generic_Factory<Return_t, Pointer_Type, Args...>::Get_Registry(){
         if (_registry_ == nullptr)
             _registry_ = new Generic_Factory<Return_t, Pointer_Type, Args...>::Registry_t();
         return _registry_;
     }
 
-        template <class Return_t, template <class> class Pointer_Type, class...Args>
+        template <class Return_t, template <typename> class Pointer_Type, class...Args>
         typename Generic_Factory<Return_t, Pointer_Type, Args...>::Registry_t* Generic_Factory<Return_t, Pointer_Type, Args...>::_registry_ = nullptr;
 }}
 
