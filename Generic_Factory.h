@@ -45,7 +45,7 @@
     using Pointer_Type = fx::core::POINTER_TYPE<CLASS_NAME>;
 
 namespace fx { namespace core {
-    
+
 
         template <class T>
         struct Shared_Pointer{
@@ -64,46 +64,46 @@ namespace fx { namespace core {
         template <typename T, bool> struct Factory_Pointer_Traits_Impl;
         template<typename T> struct CheckForType;
         }
-        
+
         template <typename T>
         struct Factory_Pointer_Traits
         {
             typedef typename internal::Factory_Pointer_Traits_Impl<T, internal::CheckForType<T>::value>::type pointer_t;
         };
 
-                namespace internal {
+        namespace internal {
 
-        template <typename T, bool>
-        struct Factory_Pointer_Traits_Impl
-        {
-            typedef Shared_Pointer<T> type;
-        };
+            template <typename T, bool>
+                struct Factory_Pointer_Traits_Impl
+                {
+                    typedef Shared_Pointer<T> type;
+                };
 
-        template <typename T>
-        struct Factory_Pointer_Traits_Impl<T, true>
-        {
-            typedef typename T::Pointer_Type type;
-        };
+            template <typename T>
+                struct Factory_Pointer_Traits_Impl<T, true>
+                {
+                    typedef typename T::Pointer_Type type;
+                };
 
-        template<typename T>
-        struct CheckForType
-        {
-        private:
-            typedef char                      yes;
-            typedef struct { char array[2]; } no;
+            template<typename T>
+                struct CheckForType
+                {
+                    private:
+                        typedef char                      yes;
+                        typedef struct { char array[2]; } no;
 
-            template<typename C> static yes test(typename C::Pointer_Type*);
-            template<typename C> static no  test(...);
-        public:
-            static const bool value = sizeof(test<T>(0)) == sizeof(yes);
-        };
+                        template<typename C> static yes test(typename C::Pointer_Type*);
+                        template<typename C> static no  test(...);
+                    public:
+                        static const bool value = sizeof(test<T>(0)) == sizeof(yes);
+                };
         }
-        
-        
+
+
         template <class AbstractType, class...ConstructorArgs>
         class Generic_Factory{
             using Pointer_T = typename core::Factory_Pointer_Traits<AbstractType>::pointer_t::type;
-            
+
         public:
             static Pointer_T Construct(std::string key, ConstructorArgs... arguments){
                 auto it = Get_Registry()->find(key);
@@ -116,17 +116,17 @@ namespace fx { namespace core {
 
             using Constructor_t = std::function< Pointer_T(ConstructorArgs...)>;
             using Registry_t = std::map< std::string, Constructor_t>;
-            
+
             Generic_Factory(Generic_Factory const&) = delete;
             Generic_Factory& operator=(Generic_Factory const&) = delete;
 
         protected:
             Generic_Factory(){}
             static Registry_t* Get_Registry();
-        
+
         private:
             static Registry_t* _registry_;
-  
+
         };
 
         template <class ConcreteType, class AbstractType, class...ConstructorArgs>
