@@ -41,7 +41,7 @@
 #include <memory>
 #include <map>
 
-#define FACTORY_POINTER_TYPE(CLASS_NAME, POINTER_TYPE)   \
+#define FACTORY_POINTER_TYPE(CLASS_NAME, POINTER_TYPE)  \
     using Pointer_Type = fx::core::POINTER_TYPE<CLASS_NAME>;
 
 namespace fx { namespace core {
@@ -60,22 +60,25 @@ namespace fx { namespace core {
             using type = T*;
         };
 
+        namespace internal{
         template <typename T, bool> struct Factory_Pointer_Traits_Impl;
         template<typename T> struct CheckForType;
-        
+        }
         
         template <typename T>
         struct Factory_Pointer_Traits
         {
-            typedef typename Factory_Pointer_Traits_Impl<T, CheckForType<T>::value>::type pointer_t;
+            typedef typename internal::Factory_Pointer_Traits_Impl<T, internal::CheckForType<T>::value>::type pointer_t;
         };
+
+                namespace internal {
 
         template <typename T, bool>
         struct Factory_Pointer_Traits_Impl
         {
             typedef Shared_Pointer<T> type;
         };
-        
+
         template <typename T>
         struct Factory_Pointer_Traits_Impl<T, true>
         {
@@ -94,7 +97,7 @@ namespace fx { namespace core {
         public:
             static const bool value = sizeof(test<T>(0)) == sizeof(yes);
         };
-        
+        }
         
         
         template <class AbstractType, class...ConstructorArgs>
