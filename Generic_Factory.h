@@ -41,38 +41,66 @@
 #include <memory>
 #include <map>
 
-    //namespace fx {
-    //    namespace core { 
-    //        class IFinancial_Model; 
-    //        class Data_Context;
-    //    }
-    ////    namespace inputs{ class IModel_Input; }
-    //}
-
 
 namespace fx { namespace core {
     
 
         template <class T>
         struct Shared_Pointer{
-            using Type = std::shared_ptr<T>;
+            using type = std::shared_ptr<T>;
         };
         template <class T>
         struct Unique_Pointer{
-            using Type = std::unique_ptr<T>;
+            using type = std::unique_ptr<T>;
         };
         template <class T>
         struct Raw_Pointer{
-            using Type = T*;
+            using type = T*;
+        };
+
+        template <typename T, bool> struct Factory_Pointer_Traits_Impl;
+        template<typename T> struct CheckForType;
+        
+        
+        template <typename T>
+        struct Factory_Pointer_Traits
+        {
+            typedef typename Factory_Pointer_Traits_Impl<T, CheckForType<T>::value>::type pointer_t;
+        };
+
+        template <typename T, bool>
+        struct Factory_Pointer_Traits_Impl
+        {
+            typedef Shared_Pointer<T> type;
+        };
+        
+        template <typename T>
+        struct Factory_Pointer_Traits_Impl<T, true>
+        {
+            typedef typename T::Pointer_Type type;
+        };
+
+        template<typename T>
+        struct CheckForType
+        {
+        private:
+            typedef char                      yes;
+            typedef struct { char array[2]; } no;
+
+            template<typename C> static yes test(typename C::Pointer_Type*);
+            template<typename C> static no  test(...);
+        public:
+            static const bool value = sizeof(test<T>(0)) == sizeof(yes);
         };
         
         
-        template <class AbstractType, template <typename> class Pointer_Type<AbstractType>, class...ConstructorArgs>
-//        template <class AbstractType, class...ConstructorArgs>
-    class Generic_Factory{
-
+        
+        template <class AbstractType, class...ConstructorArgs>
+        class Generic_Factory{
+            using Pointer_T = typename core::Factory_Pointer_Traits<AbstractType>::pointer_t::type;
+            
         public:
-            static typename Pointer_Type<AbstractType>::Type Construct(std::string key, ConstructorArgs... arguments){
+            static Pointer_T Construct(std::string key, ConstructorArgs... arguments){
                 auto it = Get_Registry()->find(key);
                 if (it == Get_Registry()->cend())
                     return nullptr;
@@ -81,7 +109,7 @@ namespace fx { namespace core {
                 return constructor(std::forward<ConstructorArgs>(arguments)...);
             }
 
-            using Constructor_t = std::function<typename Pointer_Type<AbstractType>::Type(ConstructorArgs...)>;
+            using Constructor_t = std::function< Pointer_T(ConstructorArgs...)>;
             using Registry_t = std::map< std::string, Constructor_t>;
             
             Generic_Factory(Generic_Factory const&) = delete;
@@ -96,14 +124,13 @@ namespace fx { namespace core {
   
         };
 
-        template <class ConcreteType, class AbstractType, template <typename> class Pointer_Type<AbstractType>, class...ConstructorArgs>
-        struct Factory_Registrar : private fx::core::Generic_Factory<AbstractType, Pointer_Type, ConstructorArgs...>{
-            using Factory = fx::core::Generic_Factory<AbstractType, Pointer_Type, ConstructorArgs...>;
+        template <class ConcreteType, class AbstractType, class...ConstructorArgs>
+        struct Factory_Registrar : private fx::core::Generic_Factory<AbstractType, ConstructorArgs...>{
+            using Factory = fx::core::Generic_Factory<AbstractType, ConstructorArgs...>;
             using Constructor_t = typename Factory::Constructor_t;
 
     public:
             Factory_Registrar(std::string const& designator, Constructor_t  object_constructor){
-//                fx::core::Generic_Factory<AbstractType, ConstructorArgs...>::Registry_t* registry = Generic_Factory<AbstractType, ConstructorArgs...>::Get_Registry();
                 auto registry = Factory::Get_Registry();
                 if (registry->find(designator) == registry->cend())
                     registry->insert(std::make_pair(designator, object_constructor));
@@ -111,15 +138,15 @@ namespace fx { namespace core {
             unsigned int NO_OP(){ return 0; }
         };
 
-        template <class Return_t, template <typename> class Pointer_Type, class...Args>
-        typename Generic_Factory<Return_t, Pointer_Type, Args...>::Registry_t* Generic_Factory<Return_t, Pointer_Type, Args...>::Get_Registry(){
+        template <class Return_t, class...Args>
+        typename Generic_Factory<Return_t, Args...>::Registry_t* Generic_Factory<Return_t, Args...>::Get_Registry(){
         if (_registry_ == nullptr)
-            _registry_ = new Generic_Factory<Return_t, Pointer_Type, Args...>::Registry_t();
+            _registry_ = new Generic_Factory<Return_t, Args...>::Registry_t();
         return _registry_;
     }
 
-        template <class Return_t, template <typename> class Pointer_Type, class...Args>
-        typename Generic_Factory<Return_t, Pointer_Type, Args...>::Registry_t* Generic_Factory<Return_t, Pointer_Type, Args...>::_registry_ = nullptr;
+        template <class Return_t, class...Args>
+        typename Generic_Factory<Return_t,  Args...>::Registry_t* Generic_Factory<Return_t, Args...>::_registry_ = nullptr;
 }}
 
 #endif
