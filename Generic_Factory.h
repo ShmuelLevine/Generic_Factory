@@ -41,6 +41,8 @@
 #include <memory>
 #include <map>
 
+#define FACTORY_POINTER_TYPE(CLASS_NAME, POINTER_TYPE)   \
+    using Pointer_Type = fx::core::POINTER_TYPE<CLASS_NAME>;
 
 namespace fx { namespace core {
     
