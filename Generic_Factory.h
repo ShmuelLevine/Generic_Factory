@@ -136,7 +136,7 @@ namespace fx { namespace core {
             using Constructor_t = std::function< Pointer_T(ConstructorArgs...)>;
 
     public:
-            Factory_Registrar(std::string const& designator, Constructor_t  object_constructor){
+            Factory_Registrar(std::string designator, Constructor_t object_constructor){
                 auto registry = Factory::Get_Registry();
                 if (registry->find(designator) == registry->cend())
                     registry->insert(std::make_pair(designator, object_constructor));
