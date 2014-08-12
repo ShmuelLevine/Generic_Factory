@@ -133,6 +133,7 @@ namespace fx { namespace core {
         struct Factory_Registrar : private fx::core::Generic_Factory<AbstractType, ConstructorArgs...>{
             using Factory = fx::core::Generic_Factory<AbstractType, ConstructorArgs...>;
             using Pointer_T = typename core::Factory_Pointer_Traits<AbstractType>::pointer_t::type;
+            using Constructor_t = std::function< Pointer_T(ConstructorArgs...)>;
 
     public:
             Factory_Registrar(std::string const& designator, Constructor_t  object_constructor){
