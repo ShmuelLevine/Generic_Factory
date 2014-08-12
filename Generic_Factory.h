@@ -68,7 +68,6 @@ namespace fx { namespace core {
         
         
         template <class AbstractType, template <typename> class Pointer_Type, class...ConstructorArgs>
-//        template <class AbstractType, class...ConstructorArgs>
     class Generic_Factory{
 
             using Pointer_t = typename Pointer_Type<AbstractType>::Type;
