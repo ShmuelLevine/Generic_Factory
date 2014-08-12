@@ -67,12 +67,13 @@ namespace fx { namespace core {
         };
         
         
-        template <class AbstractType, template <typename> class Pointer_Type<AbstractType>, class...ConstructorArgs>
+        template <class AbstractType, template <typename> class Pointer_Type, class...ConstructorArgs>
 //        template <class AbstractType, class...ConstructorArgs>
     class Generic_Factory{
 
+            using Pointer_t = typename Pointer_Type<AbstractType>::Type;
         public:
-            static typename Pointer_Type<AbstractType>::Type Construct(std::string key, ConstructorArgs... arguments){
+            static Pointer_t Construct(std::string key, ConstructorArgs... arguments){
                 auto it = Get_Registry()->find(key);
                 if (it == Get_Registry()->cend())
                     return nullptr;
@@ -81,7 +82,7 @@ namespace fx { namespace core {
                 return constructor(std::forward<ConstructorArgs>(arguments)...);
             }
 
-            using Constructor_t = std::function<typename Pointer_Type<AbstractType>::Type(ConstructorArgs...)>;
+            using Constructor_t = std::function<Pointer_t(ConstructorArgs...)>;
             using Registry_t = std::map< std::string, Constructor_t>;
             
             Generic_Factory(Generic_Factory const&) = delete;
@@ -96,14 +97,14 @@ namespace fx { namespace core {
   
         };
 
-        template <class ConcreteType, class AbstractType, template <typename> class Pointer_Type<AbstractType>, class...ConstructorArgs>
+        template <class ConcreteType, class AbstractType, template <typename> class Pointer_Type, class...ConstructorArgs>
         struct Factory_Registrar : private fx::core::Generic_Factory<AbstractType, Pointer_Type, ConstructorArgs...>{
             using Factory = fx::core::Generic_Factory<AbstractType, Pointer_Type, ConstructorArgs...>;
             using Constructor_t = typename Factory::Constructor_t;
+            using Pointer_t = typename Pointer_Type<AbstractType>::Type;
 
     public:
             Factory_Registrar(std::string const& designator, Constructor_t  object_constructor){
-//                fx::core::Generic_Factory<AbstractType, ConstructorArgs...>::Registry_t* registry = Generic_Factory<AbstractType, ConstructorArgs...>::Get_Registry();
                 auto registry = Factory::Get_Registry();
                 if (registry->find(designator) == registry->cend())
                     registry->insert(std::make_pair(designator, object_constructor));
