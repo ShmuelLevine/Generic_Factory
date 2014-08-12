@@ -106,6 +106,7 @@ namespace fx { namespace core {
 
         public:
             static Pointer_T Construct(std::string key, ConstructorArgs... arguments){
+
                 auto it = Get_Registry()->find(key);
                 if (it == Get_Registry()->cend())
                     return nullptr;
