@@ -126,7 +126,7 @@ namespace fx { namespace core {
             static Registry_t* Get_Registry();
 
         private:
-            static Registry_t* _registry_;
+            /*static Registry_t* _registry_;*/
 
         };
 
@@ -137,23 +137,26 @@ namespace fx { namespace core {
             using Constructor_t = std::function< Pointer_T(ConstructorArgs...)>;
 
     public:
-            Factory_Registrar(std::string designator, Constructor_t object_constructor){
+        std::string designator_;
+            Factory_Registrar(std::string designator, Constructor_t object_constructor) : designator_(designator) {
                 auto registry = Factory::Get_Registry();
                 if (registry->find(designator) == registry->cend())
                     registry->insert(std::make_pair(designator, object_constructor));
             }
             unsigned int NO_OP(){ return 0; }
+            std::string string_noop(){ return designator_; }
         };
 
         template <class Return_t, class...Args>
         typename Generic_Factory<Return_t, Args...>::Registry_t* Generic_Factory<Return_t, Args...>::Get_Registry(){
-        if (_registry_ == nullptr)
-            _registry_ = new Generic_Factory<Return_t, Args...>::Registry_t();
-        return _registry_;
+            static Registry_t* _registry_ (nullptr); 
+            if (_registry_ == nullptr)
+                _registry_ = new Generic_Factory<Return_t, Args...>::Registry_t();
+            return _registry_;
     }
 
-        template <class Return_t, class...Args>
-        typename Generic_Factory<Return_t,  Args...>::Registry_t* Generic_Factory<Return_t, Args...>::_registry_ = nullptr;
+        /*template <class Return_t, class...Args>
+        typename Generic_Factory<Return_t,  Args...>::Registry_t* Generic_Factory<Return_t, Args...>::_registry_ = nullptr;*/
 }}
 
 #endif
